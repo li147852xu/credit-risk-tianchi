@@ -6,9 +6,10 @@
 
 ## 🏆 Competition Results
 
-**Best Single Model**: 0.7411 AUC (CatBoost C0 on FE2)  
-**Best Ensemble**: 0.7418 AUC (FE1+2+3 Blend with Weight Optimization)  
-**Competition Ranking**: Top 10% performance with comprehensive feature engineering and model blending
+**Best Single Model on testA**: 0.7411 AUC (CatBoost C0 on FE2)  
+**Best Ensemble on testA**: 0.7418 AUC (FE1+2+3 Blend with Weight Optimization)  
+**Best Result on testB**:0.7392 AUC (9.11)
+**Competition Ranking**:  54/426（9.14) performance with comprehensive feature engineering and model blending
 
 ## English
 
