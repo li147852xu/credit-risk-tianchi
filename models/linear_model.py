@@ -24,7 +24,7 @@ class LinearModel(BaseModel):
     
     def __init__(self, config: dict):
         super().__init__(config)
-        self.scalers = []  # 存储每个fold的scaler
+        self.scalers: list = []  # 存储每个fold的scaler
         self.model_type = config.get('model_type', 'logistic_regression')
         
     def _get_model(self):

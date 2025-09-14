@@ -25,11 +25,11 @@ class BaseModel(ABC):
     
     def __init__(self, config: dict):
         self.config = config
-        self.models = []  # 存储fold模型
+        self.models: list = []  # 存储fold模型
         self.cv_auc = 0.0
         self.oof_predictions = None
         self.test_predictions = None
-        self.feature_importance = []
+        self.feature_importance: list = []
         
     @abstractmethod
     def train_single_fold(self, X_train, y_train, X_val, y_val, fold_idx):

@@ -47,40 +47,57 @@ This solution achieved excellent results through:
 
 ### Results
 
-#### Single Model Performance by Feature Engineering Version
+#### Single Model Performance by Model Type
 
-| Feature Engineering | Model Type | Model Name | AUC | Key Parameters |
-|-------------------|------------|------------|-----|----------------|
-| **FE1** | CatBoost | C0 | 0.7387 | depth=6, lr=0.03, l2=8.0 |
-| | CatBoost | C1 | 0.7386 | depth=7, lr=0.05, l2=3.0 |
-| | LightGBM | L0 | 0.7315 | num_leaves=63, lr=0.10 |
-| | LightGBM | L1 | 0.7332 | num_leaves=255, lr=0.01 |
-| | LightGBM | L2 | 0.7310 | num_leaves=191, lr=0.02 |
-| | XGBoost | X0 | 0.7333 | max_leaves=255, lr=0.02 |
-| | XGBoost | X1 | 0.7349 | max_depth=8, lr=0.06 |
-| | XGBoost | X2 | 0.7355 | max_leaves=127, lr=0.03 |
-| | Linear | LR | 0.7118 | Logistic Regression |
-| | Linear | LS | 0.7120 | Linear SVM |
-| **FE2** | CatBoost | C0 | 0.7411 | depth=6, lr=0.03, l2=8.0 |
-| | CatBoost | C1 | 0.7409 | depth=7, lr=0.05, l2=3.0 |
-| | LightGBM | L0 | 0.7341 | num_leaves=63, lr=0.10 |
-| | LightGBM | L1 | 0.7359 | num_leaves=255, lr=0.01 |
-| | LightGBM | L2 | 0.7341 | num_leaves=191, lr=0.02 |
-| | XGBoost | X0 | 0.7359 | max_leaves=255, lr=0.02 |
-| | XGBoost | X1 | 0.7371 | max_depth=8, lr=0.06 |
-| | XGBoost | X2 | 0.7380 | max_leaves=127, lr=0.03 |
-| | Linear | LR | 0.7258 | Logistic Regression |
-| | Linear | LS | 0.7246 | Linear SVM |
-| **FE3** | CatBoost | C0 | 0.7386 | depth=6, lr=0.03, l2=8.0 |
-| | CatBoost | C1 | 0.7384 | depth=7, lr=0.05, l2=3.0 |
-| | LightGBM | L0 | 0.7342 | num_leaves=63, lr=0.10 |
-| | LightGBM | L1 | 0.7362 | num_leaves=255, lr=0.01 |
-| | LightGBM | L2 | 0.7337 | num_leaves=191, lr=0.02 |
-| | XGBoost | X0 | 0.7361 | max_leaves=255, lr=0.02 |
-| | XGBoost | X1 | 0.7376 | max_depth=8, lr=0.06 |
-| | XGBoost | X2 | 0.7373 | max_leaves=127, lr=0.03 |
-| | Linear | LG | 0.7197 | Logistic Regression |
-| | Linear | LS | 0.7195 | Linear SVM |
+##### CatBoost Models
+| Model | FE1 | FE2 | FE3 | Best AUC | Key Parameters |
+|-------|-----|-----|-----|----------|----------------|
+| C0 | 0.7387 | **0.7411** | 0.7386 | 0.7411 | depth=6, lr=0.03, l2=8.0 |
+| C1 | 0.7386 | 0.7409 | 0.7384 | 0.7409 | depth=7, lr=0.05, l2=3.0 |
+
+##### LightGBM Models
+| Model | FE1 | FE2 | FE3 | Best AUC | Key Parameters |
+|-------|-----|-----|-----|----------|----------------|
+| L0 | 0.7315 | 0.7341 | **0.7342** | 0.7342 | num_leaves=63, lr=0.10 |
+| L1 | 0.7332 | 0.7359 | **0.7362** | 0.7362 | num_leaves=255, lr=0.01 |
+| L2 | 0.7310 | **0.7341** | 0.7337 | 0.7341 | num_leaves=191, lr=0.02 |
+
+##### XGBoost Models
+| Model | FE1 | FE2 | FE3 | Best AUC | Key Parameters |
+|-------|-----|-----|-----|----------|----------------|
+| X0 | 0.7333 | 0.7359 | **0.7361** | 0.7361 | max_leaves=255, lr=0.02 |
+| X1 | 0.7349 | 0.7371 | **0.7376** | 0.7376 | max_depth=8, lr=0.06 |
+| X2 | 0.7355 | **0.7380** | 0.7373 | 0.7380 | max_leaves=127, lr=0.03 |
+
+##### Linear Models
+| Model | FE1 | FE2 | FE3 | Best AUC | Key Parameters |
+|-------|-----|-----|-----|----------|----------------|
+| LR | 0.7118 | **0.7258** | 0.7197 | 0.7258 | Logistic Regression |
+| LS | 0.7120 | **0.7246** | 0.7195 | 0.7246 | Linear SVM |
+
+**Note**: Bold values indicate the best performance for each model across feature engineering versions.
+
+#### Performance Visualizations
+
+We've created comprehensive visualizations to better understand our model performance:
+
+![Model Comparison](visualizations/charts/model_comparison.png)
+*Model performance comparison across feature engineering versions*
+
+![Feature Engineering Improvement](visualizations/charts/fe_improvement.png)
+*Feature engineering improvement analysis by model*
+
+![Performance Heatmap](visualizations/charts/performance_heatmap.png)
+*Performance heatmap showing AUC scores across models and FE versions*
+
+![Best Results](visualizations/charts/best_results.png)
+*Best single model vs best blending performance*
+
+![Blend Comparison](visualizations/charts/blend_comparison.png)
+*Blending strategy comparison across feature engineering versions*
+
+![Summary Statistics](visualizations/charts/summary_statistics.png)
+*Performance statistics summary*
 
 #### Blending Results
 
@@ -302,40 +319,57 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### 结果
 
-#### 各特征工程版本的单模型性能
+#### 各模型类型的单模型性能
 
-| 特征工程版本 | 模型类型 | 模型名称 | AUC | 关键参数 |
-|------------|---------|---------|-----|---------|
-| **FE1** | CatBoost | C0 | 0.7387 | depth=6, lr=0.03, l2=8.0 |
-| | CatBoost | C1 | 0.7386 | depth=7, lr=0.05, l2=3.0 |
-| | LightGBM | L0 | 0.7315 | num_leaves=63, lr=0.10 |
-| | LightGBM | L1 | 0.7332 | num_leaves=255, lr=0.01 |
-| | LightGBM | L2 | 0.7310 | num_leaves=191, lr=0.02 |
-| | XGBoost | X0 | 0.7333 | max_leaves=255, lr=0.02 |
-| | XGBoost | X1 | 0.7349 | max_depth=8, lr=0.06 |
-| | XGBoost | X2 | 0.7355 | max_leaves=127, lr=0.03 |
-| | Linear | LR | 0.7118 | 逻辑回归 |
-| | Linear | LS | 0.7120 | 线性SVM |
-| **FE2** | CatBoost | C0 | 0.7411 | depth=6, lr=0.03, l2=8.0 |
-| | CatBoost | C1 | 0.7409 | depth=7, lr=0.05, l2=3.0 |
-| | LightGBM | L0 | 0.7341 | num_leaves=63, lr=0.10 |
-| | LightGBM | L1 | 0.7359 | num_leaves=255, lr=0.01 |
-| | LightGBM | L2 | 0.7341 | num_leaves=191, lr=0.02 |
-| | XGBoost | X0 | 0.7359 | max_leaves=255, lr=0.02 |
-| | XGBoost | X1 | 0.7371 | max_depth=8, lr=0.06 |
-| | XGBoost | X2 | 0.7380 | max_leaves=127, lr=0.03 |
-| | Linear | LR | 0.7258 | 逻辑回归 |
-| | Linear | LS | 0.7246 | 线性SVM |
-| **FE3** | CatBoost | C0 | 0.7386 | depth=6, lr=0.03, l2=8.0 |
-| | CatBoost | C1 | 0.7384 | depth=7, lr=0.05, l2=3.0 |
-| | LightGBM | L0 | 0.7342 | num_leaves=63, lr=0.10 |
-| | LightGBM | L1 | 0.7362 | num_leaves=255, lr=0.01 |
-| | LightGBM | L2 | 0.7337 | num_leaves=191, lr=0.02 |
-| | XGBoost | X0 | 0.7361 | max_leaves=255, lr=0.02 |
-| | XGBoost | X1 | 0.7376 | max_depth=8, lr=0.06 |
-| | XGBoost | X2 | 0.7373 | max_leaves=127, lr=0.03 |
-| | Linear | LG | 0.7197 | 逻辑回归 |
-| | Linear | LS | 0.7195 | 线性SVM |
+##### CatBoost模型
+| 模型 | FE1 | FE2 | FE3 | 最佳AUC | 关键参数 |
+|------|-----|-----|-----|---------|----------|
+| C0 | 0.7387 | **0.7411** | 0.7386 | 0.7411 | depth=6, lr=0.03, l2=8.0 |
+| C1 | 0.7386 | 0.7409 | 0.7384 | 0.7409 | depth=7, lr=0.05, l2=3.0 |
+
+##### LightGBM模型
+| 模型 | FE1 | FE2 | FE3 | 最佳AUC | 关键参数 |
+|------|-----|-----|-----|---------|----------|
+| L0 | 0.7315 | 0.7341 | **0.7342** | 0.7342 | num_leaves=63, lr=0.10 |
+| L1 | 0.7332 | 0.7359 | **0.7362** | 0.7362 | num_leaves=255, lr=0.01 |
+| L2 | 0.7310 | **0.7341** | 0.7337 | 0.7341 | num_leaves=191, lr=0.02 |
+
+##### XGBoost模型
+| 模型 | FE1 | FE2 | FE3 | 最佳AUC | 关键参数 |
+|------|-----|-----|-----|---------|----------|
+| X0 | 0.7333 | 0.7359 | **0.7361** | 0.7361 | max_leaves=255, lr=0.02 |
+| X1 | 0.7349 | 0.7371 | **0.7376** | 0.7376 | max_depth=8, lr=0.06 |
+| X2 | 0.7355 | **0.7380** | 0.7373 | 0.7380 | max_leaves=127, lr=0.03 |
+
+##### 线性模型
+| 模型 | FE1 | FE2 | FE3 | 最佳AUC | 关键参数 |
+|------|-----|-----|-----|---------|----------|
+| LR | 0.7118 | **0.7258** | 0.7197 | 0.7258 | 逻辑回归 |
+| LS | 0.7120 | **0.7246** | 0.7195 | 0.7246 | 线性SVM |
+
+**说明**: 粗体值表示每个模型在特征工程版本中的最佳性能。
+
+#### 性能可视化图表
+
+我们创建了全面的可视化图表来更好地理解模型性能：
+
+![模型对比](visualizations/charts/model_comparison.png)
+*各特征工程版本下的模型性能对比*
+
+![特征工程改进](visualizations/charts/fe_improvement.png)
+*各模型的特征工程改进分析*
+
+![性能热力图](visualizations/charts/performance_heatmap.png)
+*模型和特征工程版本的AUC得分热力图*
+
+![最佳结果](visualizations/charts/best_results.png)
+*最佳单模型 vs 最佳融合性能*
+
+![融合策略对比](visualizations/charts/blend_comparison.png)
+*各特征工程版本的融合策略对比*
+
+![统计摘要](visualizations/charts/summary_statistics.png)
+*性能统计摘要*
 
 #### 模型融合结果
 

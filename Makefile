@@ -65,6 +65,13 @@ train-all: train-lightgbm train-xgboost train-catboost train-linear  ## Train al
 blend:  ## Blend models
 	python scripts/blend.py --root_dir outputs --output_dir blend_results
 
+# Visualization
+charts:  ## Create performance charts
+	python visualizations/create_charts.py
+
+visualize: charts  ## Create visualizations (alias for charts)
+	@echo "Visualization complete! Charts saved to visualizations/charts/"
+
 # Pipeline
 pipeline: fe-all train-all blend  ## Run complete pipeline
 
