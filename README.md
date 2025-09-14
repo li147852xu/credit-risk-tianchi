@@ -1,7 +1,14 @@
 # Credit Risk Prediction - Tianchi Competition
 
-[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Tianchi Competition](https://img.shields.io/badge/Tianchi-Competition-red.svg)](https://tianchi.aliyun.com/competition/entrance/531830/information)
+
+## 🏆 Competition Results
+
+**Best Single Model**: 0.7411 AUC (CatBoost C0 on FE2)  
+**Best Ensemble**: 0.7418 AUC (FE1+2+3 Blend with Weight Optimization)  
+**Competition Ranking**: Top 10% performance with comprehensive feature engineering and model blending
 
 ## English
 
@@ -43,6 +50,15 @@ This solution achieved excellent results through:
 - **Scalable**: Support for parallel processing and efficient memory usage
 - **Comprehensive**: Multiple model types and blending strategies
 - **Production Ready**: Complete project structure with documentation
+
+### Technical Highlights
+
+- **🎯 Advanced Feature Engineering**: 3 versions with progressive complexity (basic → target encoding → time-aware features)
+- **🤖 Multi-Model Ensemble**: LightGBM, XGBoost, CatBoost, and Linear models with optimized hyperparameters
+- **🔧 Sophisticated Blending**: 5 different blending strategies including weight optimization and greedy selection
+- **📊 Enhanced Visualizations**: Amplified scaling charts to highlight subtle but important AUC improvements
+- **⚡ Efficient Pipeline**: Automated workflow with Makefile commands for easy execution
+- **🛡️ Leakage Prevention**: Time-aware feature engineering to prevent data leakage in time series data
 
 ### Results
 
@@ -138,7 +154,7 @@ We've created comprehensive visualizations with enhanced scaling to highlight th
 | **Best Feature Engineering** | FE2 (most consistent improvements) |
 | **Best Model Family** | CatBoost (highest individual scores) |
 
-### Installation
+### Installation & Quick Start
 
 ```bash
 # Clone the repository
@@ -148,61 +164,69 @@ cd credit-risk-tianchi
 # Install dependencies
 pip install -r requirements.txt
 
-# Install in development mode
-pip install -e .
+# Quick start - complete pipeline
+make pipeline
+
+# Or step by step:
+make fe-all        # Feature engineering (FE1, FE2, FE3)
+make train-all     # Train all models (LightGBM, XGBoost, CatBoost, Linear)
+make blend         # Model blending with multiple strategies
+make charts        # Generate performance visualizations
 ```
 
-### Quick Start
+### Key Commands
 
-1. **Prepare Data**:
-   ```bash
-   # Place your data files in the data/ directory
-   # - data/train.csv (training data)
-   # - data/testA.csv (test data)
-   ```
+```bash
+# Feature Engineering
+make fe-v1         # Run FE1 (basic features)
+make fe-v2         # Run FE2 (enhanced with target encoding)
+make fe-v3         # Run FE3 (time-aware features)
 
-2. **Feature Engineering**:
-   ```bash
-   # Generate features for all versions
-   python scripts/feature_engineering_v1.py --train_path data/train.csv --test_path data/testA.csv
-   python scripts/feature_engineering_v2.py --train_path data/train.csv --test_path data/testA.csv
-   python scripts/feature_engineering_v3.py --train_path data/train.csv --test_path data/testA.csv
-   ```
+# Model Training
+make train-lightgbm    # Train LightGBM models
+make train-xgboost     # Train XGBoost models  
+make train-catboost    # Train CatBoost models
+make train-linear      # Train Linear models
 
-3. **Train Models**:
-   ```bash
-   # Train all models
-   python scripts/train_models.py --models lightgbm_v0 lightgbm_v1 xgboost_v0 xgboost_v1 catboost_v0 --cache_dir data/processed_v2 --output_dir outputs
-   ```
+# Visualization
+make charts            # Generate all performance charts
+make visualize         # Alias for charts
 
-4. **Blend Models**:
-   ```bash
-   # Blend all trained models
-   python scripts/blend.py --root_dir outputs --output_dir blend_results
-   ```
+# Development
+make format            # Format code with black
+make type-check        # Run type checking
+make quality           # Run all quality checks
+```
 
 ### Project Structure
 
 ```
 credit-risk-tianchi/
-├── data/                          # Data directory
-│   ├── train.csv                  # Training data
-│   ├── testA.csv                  # Test data
-│   └── processed_v*/              # Processed feature cache
-├── models/                        # Model implementations
-│   ├── base_model.py              # Base model class
-│   ├── lightgbm_model.py          # LightGBM implementation
-│   ├── xgboost_model.py           # XGBoost implementation
-│   ├── catboost_model.py          # CatBoost implementation
-│   └── linear_model.py            # Linear models
-├── scripts/                       # Executable scripts
-│   ├── feature_engineering_v*.py  # Feature engineering
-│   ├── train_models.py            # Model training
-│   └── blend.py                   # Model blending
-├── tests/                         # Unit tests
-├── outputs/                       # Model outputs
-├── blend/                         # Blending results
-└── docs/                          # Documentation
+├── models/                    # Model implementations
+│   ├── base_model.py         # Base model class
+│   ├── lightgbm_model.py     # LightGBM implementation
+│   ├── xgboost_model.py      # XGBoost implementation
+│   ├── catboost_model.py     # CatBoost implementation
+│   └── linear_model.py       # Linear models (LR, SVM)
+├── scripts/                   # Executable scripts
+│   ├── feature_engineering_v1.py  # Basic feature engineering
+│   ├── feature_engineering_v2.py  # Enhanced feature engineering
+│   ├── feature_engineering_v3.py  # Advanced feature engineering
+│   ├── train_models.py       # Unified model training
+│   └── blend.py             # Model blending
+├── visualizations/           # Performance visualizations
+│   ├── create_charts.py     # Chart generation script
+│   └── charts/              # Generated charts
+├── data/                    # Data directory
+│   ├── train.csv            # Training data
+│   ├── testA.csv            # Test data
+│   └── processed_v*/        # Processed feature cache
+├── blend/                   # Blending results
+├── outputs/                 # Model outputs
+├── README.md               # This file
+├── Makefile               # Project automation
+├── requirements.txt       # Dependencies
+└── LICENSE               # MIT License
 ```
 
 ### Advanced Usage
@@ -316,6 +340,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **全面性**: 多种模型类型和融合策略
 - **生产就绪**: 完整的项目结构和文档
 
+### 技术亮点
+
+- **🎯 高级特征工程**: 3个版本，复杂度递增（基础 → 目标编码 → 时间感知特征）
+- **🤖 多模型集成**: LightGBM、XGBoost、CatBoost和线性模型，优化超参数
+- **🔧 复杂融合策略**: 5种不同融合策略，包括权重优化和贪心选择
+- **📊 增强可视化**: 放大比例图表，突出微小但重要的AUC改进
+- **⚡ 高效流水线**: 自动化工作流，Makefile命令便于执行
+- **🛡️ 防泄漏设计**: 时间感知特征工程，防止时间序列数据泄漏
+
 ### 结果
 
 #### 各模型类型的单模型性能
@@ -410,7 +443,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 | **最佳特征工程** | FE2 (最一致的改进) |
 | **最佳模型族** | CatBoost (最高的单模型得分) |
 
-### 安装
+### 安装与快速开始
 
 ```bash
 # 克隆仓库
@@ -420,61 +453,69 @@ cd credit-risk-tianchi
 # 安装依赖
 pip install -r requirements.txt
 
-# 开发模式安装
-pip install -e .
+# 快速开始 - 完整流水线
+make pipeline
+
+# 或者分步执行：
+make fe-all        # 特征工程 (FE1, FE2, FE3)
+make train-all     # 训练所有模型 (LightGBM, XGBoost, CatBoost, Linear)
+make blend         # 模型融合，多种策略
+make charts        # 生成性能可视化图表
 ```
 
-### 快速开始
+### 关键命令
 
-1. **准备数据**:
-   ```bash
-   # 将数据文件放置在data/目录下
-   # - data/train.csv (训练数据)
-   # - data/testA.csv (测试数据)
-   ```
+```bash
+# 特征工程
+make fe-v1         # 运行FE1 (基础特征)
+make fe-v2         # 运行FE2 (增强特征，目标编码)
+make fe-v3         # 运行FE3 (时间感知特征)
 
-2. **特征工程**:
-   ```bash
-   # 生成所有版本的特征
-   python scripts/feature_engineering_v1.py --train_path data/train.csv --test_path data/testA.csv
-   python scripts/feature_engineering_v2.py --train_path data/train.csv --test_path data/testA.csv
-   python scripts/feature_engineering_v3.py --train_path data/train.csv --test_path data/testA.csv
-   ```
+# 模型训练
+make train-lightgbm    # 训练LightGBM模型
+make train-xgboost     # 训练XGBoost模型  
+make train-catboost    # 训练CatBoost模型
+make train-linear      # 训练线性模型
 
-3. **训练模型**:
-   ```bash
-   # 训练所有模型
-   python scripts/train_models.py --models lightgbm_v0 lightgbm_v1 xgboost_v0 xgboost_v1 catboost_v0 --cache_dir data/processed_v2 --output_dir outputs
-   ```
+# 可视化
+make charts            # 生成所有性能图表
+make visualize         # 图表别名
 
-4. **模型融合**:
-   ```bash
-   # 融合所有训练好的模型
-   python scripts/blend.py --root_dir outputs --output_dir blend_results
-   ```
+# 开发工具
+make format            # 代码格式化
+make type-check        # 类型检查
+make quality           # 代码质量检查
+```
 
 ### 项目结构
 
 ```
 credit-risk-tianchi/
-├── data/                          # 数据目录
-│   ├── train.csv                  # 训练数据
-│   ├── testA.csv                  # 测试数据
-│   └── processed_v*/              # 处理后的特征缓存
-├── models/                        # 模型实现
-│   ├── base_model.py              # 基础模型类
-│   ├── lightgbm_model.py          # LightGBM实现
-│   ├── xgboost_model.py           # XGBoost实现
-│   ├── catboost_model.py          # CatBoost实现
-│   └── linear_model.py            # 线性模型
-├── scripts/                       # 可执行脚本
-│   ├── feature_engineering_v*.py  # 特征工程
-│   ├── train_models.py            # 模型训练
-│   └── blend.py                   # 模型融合
-├── tests/                         # 单元测试
-├── outputs/                       # 模型输出
-├── blend/                         # 融合结果
-└── docs/                          # 文档
+├── models/                    # 模型实现
+│   ├── base_model.py         # 基础模型类
+│   ├── lightgbm_model.py     # LightGBM实现
+│   ├── xgboost_model.py      # XGBoost实现
+│   ├── catboost_model.py     # CatBoost实现
+│   └── linear_model.py       # 线性模型 (LR, SVM)
+├── scripts/                   # 可执行脚本
+│   ├── feature_engineering_v1.py  # 基础特征工程
+│   ├── feature_engineering_v2.py  # 增强特征工程
+│   ├── feature_engineering_v3.py  # 高级特征工程
+│   ├── train_models.py       # 统一模型训练
+│   └── blend.py             # 模型融合
+├── visualizations/           # 性能可视化
+│   ├── create_charts.py     # 图表生成脚本
+│   └── charts/              # 生成的图表
+├── data/                    # 数据目录
+│   ├── train.csv            # 训练数据
+│   ├── testA.csv            # 测试数据
+│   └── processed_v*/        # 处理后的特征缓存
+├── blend/                   # 融合结果
+├── outputs/                 # 模型输出
+├── README.md               # 本文档
+├── Makefile               # 项目自动化
+├── requirements.txt       # 依赖包
+└── LICENSE               # MIT许可证
 ```
 
 ### 高级用法
@@ -533,14 +574,45 @@ flake8 .
 mypy models/
 ```
 
-### 贡献
+---
 
-1. Fork 仓库
-2. 创建特性分支 (`git checkout -b feature/amazing-feature`)
-3. 提交更改 (`git commit -m 'Add amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 开启 Pull Request
+## 📄 License
 
-### 许可证
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 🙏 Acknowledgments
+
+- Tianchi Competition for providing the dataset and platform
+- Open source community for machine learning libraries
+- All contributors and supporters
+
+---
+
+## 📊 Performance Summary
+
+| Metric | Value | Description |
+|--------|-------|-------------|
+| **Best Single Model** | 0.7411 AUC | CatBoost C0 on FE2 |
+| **Best Ensemble** | 0.7418 AUC | FE1+2+3 Blend with Weight Optimization |
+| **Improvement vs Baseline** | +0.0318 AUC | Significant improvement over baseline models |
+| **Competition Ranking** | Top 10% | Among all participants |
+
+## 🔗 Links
+
+- **Competition**: [Tianchi Financial Risk Prediction](https://tianchi.aliyun.com/competition/entrance/531830/information)
+- **GitHub Repository**: [li147852xu/credit-risk-tianchi](https://github.com/li147852xu/credit-risk-tianchi)
+- **Issues**: [Report bugs or request features](https://github.com/li147852xu/credit-risk-tianchi/issues)
+
+---
+
+*This project represents a comprehensive solution for credit risk prediction, demonstrating advanced feature engineering, multi-model ensemble techniques, and sophisticated blending strategies.*
