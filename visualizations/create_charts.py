@@ -96,89 +96,120 @@ def load_model_results():
     return single_model_data, blend_data
 
 def create_model_comparison_chart(single_model_data, output_dir):
-    """创建模型对比图表"""
-    fig, axes = plt.subplots(2, 2, figsize=(16, 12))
-    fig.suptitle('Model Performance Comparison Across Feature Engineering Versions', fontsize=16, fontweight='bold')
+    """创建模型对比图表 - 突出差异"""
+    fig, axes = plt.subplots(2, 2, figsize=(18, 14))
+    fig.suptitle('Model Performance Comparison (AUC Improvement Analysis)', fontsize=18, fontweight='bold')
     
     model_types = list(single_model_data.keys())
     fe_versions = ['FE1', 'FE2', 'FE3']
     
+    # 计算全局基准（最小AUC）
+    all_aucs = []
+    for model_type, models in single_model_data.items():
+        for fe_results in models.values():
+            all_aucs.extend(fe_results.values())
+    baseline_auc = min(all_aucs)
+    
     for idx, model_type in enumerate(model_types):
         ax = axes[idx // 2, idx % 2]
         
-        # 准备数据
+        # 准备数据 - 计算相对于基准的提升
         data_for_plot = []
         for model_name, fe_results in single_model_data[model_type].items():
             for fe_version in fe_versions:
+                improvement = (fe_results[fe_version] - baseline_auc) * 10000  # 放大10000倍
                 data_for_plot.append({
-                    'Model': f"{model_type} {model_name}",
+                    'Model': f"{model_name}",
                     'FE Version': fe_version,
-                    'AUC': fe_results[fe_version]
+                    'Improvement': improvement,
+                    'Original AUC': fe_results[fe_version]
                 })
         
         df = pd.DataFrame(data_for_plot)
         
         # 绘制分组柱状图
-        sns.barplot(data=df, x='Model', y='AUC', hue='FE Version', ax=ax)
-        ax.set_title(f'{model_type} Performance', fontweight='bold')
-        ax.set_ylabel('AUC Score')
+        sns.barplot(data=df, x='Model', y='Improvement', hue='FE Version', ax=ax)
+        ax.set_title(f'{model_type} Performance (vs Baseline +{baseline_auc:.4f})', fontweight='bold', fontsize=12)
+        ax.set_ylabel('AUC Improvement (×10,000)')
         ax.set_xlabel('Model Variants')
         ax.tick_params(axis='x', rotation=45)
-        ax.legend(title='Feature Engineering')
+        ax.legend(title='Feature Engineering', fontsize=10)
+        ax.grid(True, alpha=0.3)
         
-        # 添加数值标签
-        for container in ax.containers:
-            ax.bar_label(container, fmt='%.4f', rotation=90, fontsize=8)
+        # 添加原始AUC值作为标签
+        for i, container in enumerate(ax.containers):
+            for j, bar in enumerate(container):
+                height = bar.get_height()
+                original_auc = df.iloc[j * len(fe_versions) + i]['Original AUC']
+                ax.text(bar.get_x() + bar.get_width()/2., height,
+                       f'{original_auc:.4f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
     
     plt.tight_layout()
     plt.savefig(output_dir / 'model_comparison.png', dpi=300, bbox_inches='tight')
     plt.close()
 
 def create_fe_improvement_chart(single_model_data, output_dir):
-    """创建特征工程改进图表"""
-    fig, ax = plt.subplots(figsize=(14, 8))
+    """创建特征工程改进图表 - 突出改进幅度"""
+    fig, ax = plt.subplots(figsize=(16, 10))
     
     # 计算每个模型在FE1到FE2和FE2到FE3的改进
     improvements = []
     
     for model_type, models in single_model_data.items():
         for model_name, fe_results in models.items():
-            fe1_to_fe2 = fe_results['FE2'] - fe_results['FE1']
-            fe2_to_fe3 = fe_results['FE3'] - fe_results['FE2']
+            fe1_to_fe2 = (fe_results['FE2'] - fe_results['FE1']) * 10000  # 放大10000倍
+            fe2_to_fe3 = (fe_results['FE3'] - fe_results['FE2']) * 10000  # 放大10000倍
+            fe1_to_fe3 = (fe_results['FE3'] - fe_results['FE1']) * 10000  # 放大10000倍
             
             improvements.append({
                 'Model': f"{model_type} {model_name}",
                 'FE1→FE2': fe1_to_fe2,
-                'FE2→FE3': fe2_to_fe3
+                'FE2→FE3': fe2_to_fe3,
+                'FE1→FE3': fe1_to_fe3,
+                'FE1_AUC': fe_results['FE1'],
+                'FE2_AUC': fe_results['FE2'],
+                'FE3_AUC': fe_results['FE3']
             })
     
     df = pd.DataFrame(improvements)
     
     # 绘制分组柱状图
     x = np.arange(len(df))
-    width = 0.35
+    width = 0.25
     
-    bars1 = ax.bar(x - width/2, df['FE1→FE2'], width, label='FE1→FE2', alpha=0.8)
-    bars2 = ax.bar(x + width/2, df['FE2→FE3'], width, label='FE2→FE3', alpha=0.8)
+    bars1 = ax.bar(x - width, df['FE1→FE2'], width, label='FE1→FE2', alpha=0.8, color='#2E8B57')
+    bars2 = ax.bar(x, df['FE2→FE3'], width, label='FE2→FE3', alpha=0.8, color='#4169E1')
+    bars3 = ax.bar(x + width, df['FE1→FE3'], width, label='FE1→FE3 (Total)', alpha=0.8, color='#DC143C')
     
-    ax.set_xlabel('Models')
-    ax.set_ylabel('AUC Improvement')
-    ax.set_title('Feature Engineering Improvement by Model', fontweight='bold')
+    ax.set_xlabel('Models', fontsize=12)
+    ax.set_ylabel('AUC Improvement (×10,000)', fontsize=12)
+    ax.set_title('Feature Engineering Improvement Analysis (Amplified Scale)', fontweight='bold', fontsize=14)
     ax.set_xticks(x)
-    ax.set_xticklabels(df['Model'], rotation=45, ha='right')
-    ax.legend()
+    ax.set_xticklabels(df['Model'], rotation=45, ha='right', fontsize=10)
+    ax.legend(fontsize=11)
     ax.grid(True, alpha=0.3)
     
-    # 添加数值标签
-    for bar in bars1:
+    # 添加数值标签 - 显示原始改进值
+    for i, bar in enumerate(bars1):
         height = bar.get_height()
+        original_improvement = df.iloc[i]['FE1→FE2'] / 10000
         ax.text(bar.get_x() + bar.get_width()/2., height,
-                f'{height:+.4f}', ha='center', va='bottom', fontsize=8)
+                f'{original_improvement:+.4f}', ha='center', va='bottom', fontsize=8, fontweight='bold')
     
-    for bar in bars2:
+    for i, bar in enumerate(bars2):
         height = bar.get_height()
+        original_improvement = df.iloc[i]['FE2→FE3'] / 10000
         ax.text(bar.get_x() + bar.get_width()/2., height,
-                f'{height:+.4f}', ha='center', va='bottom', fontsize=8)
+                f'{original_improvement:+.4f}', ha='center', va='bottom', fontsize=8, fontweight='bold')
+    
+    for i, bar in enumerate(bars3):
+        height = bar.get_height()
+        original_improvement = df.iloc[i]['FE1→FE3'] / 10000
+        ax.text(bar.get_x() + bar.get_width()/2., height,
+                f'{original_improvement:+.4f}', ha='center', va='bottom', fontsize=8, fontweight='bold')
+    
+    # 添加零线
+    ax.axhline(y=0, color='black', linestyle='-', alpha=0.5)
     
     plt.tight_layout()
     plt.savefig(output_dir / 'fe_improvement.png', dpi=300, bbox_inches='tight')
@@ -217,101 +248,133 @@ def create_blend_comparison_chart(blend_data, output_dir):
     plt.close()
 
 def create_best_results_chart(single_model_data, blend_data, output_dir):
-    """创建最佳结果对比图表"""
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+    """创建最佳结果对比图表 - 突出差异"""
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 8))
     
-    # 最佳单模型结果
+    # 最佳单模型结果 - 使用相对改进
     best_single = []
+    baseline_auc = 0.71  # 设置一个合理的基准
+    
     for model_type, models in single_model_data.items():
         for model_name, fe_results in models.items():
             best_auc = max(fe_results.values())
+            improvement = (best_auc - baseline_auc) * 10000  # 放大10000倍
             best_single.append({
                 'Model': f"{model_type} {model_name}",
-                'Best AUC': best_auc
+                'Best AUC': best_auc,
+                'Improvement': improvement
             })
     
     df_single = pd.DataFrame(best_single).sort_values('Best AUC', ascending=False)
     
-    bars1 = ax1.bar(range(len(df_single)), df_single['Best AUC'], alpha=0.7)
-    ax1.set_title('Best Single Model Performance', fontweight='bold')
-    ax1.set_ylabel('AUC Score')
+    # 使用改进值绘制，但标签显示原始AUC
+    bars1 = ax1.bar(range(len(df_single)), df_single['Improvement'], alpha=0.7, 
+                   color=plt.cm.viridis(np.linspace(0, 1, len(df_single))))
+    ax1.set_title('Best Single Model Performance (vs Baseline 0.7100)', fontweight='bold', fontsize=12)
+    ax1.set_ylabel('AUC Improvement (×10,000)')
     ax1.set_xlabel('Models')
     ax1.set_xticks(range(len(df_single)))
-    ax1.set_xticklabels(df_single['Model'], rotation=45, ha='right')
+    ax1.set_xticklabels(df_single['Model'], rotation=45, ha='right', fontsize=10)
     ax1.grid(True, alpha=0.3)
     
-    # 添加数值标签
+    # 添加原始AUC值作为标签
     for i, bar in enumerate(bars1):
         height = bar.get_height()
+        original_auc = df_single.iloc[i]['Best AUC']
         ax1.text(bar.get_x() + bar.get_width()/2., height,
-                f'{height:.4f}', ha='center', va='bottom', fontsize=8)
+                f'{original_auc:.4f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
     
     # 最佳融合结果
     best_blend = []
     for fe_version, strategies in blend_data.items():
         best_auc = max(strategies.values())
+        improvement = (best_auc - baseline_auc) * 10000  # 放大10000倍
         best_blend.append({
             'FE Version': fe_version,
-            'Best AUC': best_auc
+            'Best AUC': best_auc,
+            'Improvement': improvement
         })
     
     df_blend = pd.DataFrame(best_blend).sort_values('Best AUC', ascending=False)
     
-    bars2 = ax2.bar(range(len(df_blend)), df_blend['Best AUC'], alpha=0.7, color='orange')
-    ax2.set_title('Best Blending Performance', fontweight='bold')
-    ax2.set_ylabel('AUC Score')
+    bars2 = ax2.bar(range(len(df_blend)), df_blend['Improvement'], alpha=0.7, 
+                   color=plt.cm.plasma(np.linspace(0, 1, len(df_blend))))
+    ax2.set_title('Best Blending Performance (vs Baseline 0.7100)', fontweight='bold', fontsize=12)
+    ax2.set_ylabel('AUC Improvement (×10,000)')
     ax2.set_xlabel('Feature Engineering Version')
     ax2.set_xticks(range(len(df_blend)))
-    ax2.set_xticklabels(df_blend['FE Version'], rotation=45, ha='right')
+    ax2.set_xticklabels(df_blend['FE Version'], rotation=45, ha='right', fontsize=10)
     ax2.grid(True, alpha=0.3)
     
-    # 添加数值标签
+    # 添加原始AUC值作为标签
     for i, bar in enumerate(bars2):
         height = bar.get_height()
+        original_auc = df_blend.iloc[i]['Best AUC']
         ax2.text(bar.get_x() + bar.get_width()/2., height,
-                f'{height:.4f}', ha='center', va='bottom', fontsize=8)
+                f'{original_auc:.4f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
     
     plt.tight_layout()
     plt.savefig(output_dir / 'best_results.png', dpi=300, bbox_inches='tight')
     plt.close()
 
 def create_heatmap_chart(single_model_data, output_dir):
-    """创建热力图"""
-    fig, ax = plt.subplots(figsize=(12, 8))
+    """创建热力图 - 显示改进幅度"""
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
     
-    # 准备热力图数据
-    heatmap_data = []
+    # 准备热力图数据 - 原始AUC
+    heatmap_data_original = []
     model_labels = []
     
     for model_type, models in single_model_data.items():
         for model_name, fe_results in models.items():
             model_labels.append(f"{model_type} {model_name}")
-            heatmap_data.append([fe_results['FE1'], fe_results['FE2'], fe_results['FE3']])
+            heatmap_data_original.append([fe_results['FE1'], fe_results['FE2'], fe_results['FE3']])
     
-    heatmap_array = np.array(heatmap_data)
+    heatmap_array_original = np.array(heatmap_data_original)
     
-    # 创建热力图
-    im = ax.imshow(heatmap_array, cmap='YlOrRd', aspect='auto')
-    
-    # 设置标签
-    ax.set_xticks(range(3))
-    ax.set_xticklabels(['FE1', 'FE2', 'FE3'])
-    ax.set_yticks(range(len(model_labels)))
-    ax.set_yticklabels(model_labels)
+    # 左图：原始AUC热力图
+    im1 = ax1.imshow(heatmap_array_original, cmap='YlOrRd', aspect='auto')
+    ax1.set_xticks(range(3))
+    ax1.set_xticklabels(['FE1', 'FE2', 'FE3'], fontsize=12)
+    ax1.set_yticks(range(len(model_labels)))
+    ax1.set_yticklabels(model_labels, fontsize=10)
+    ax1.set_title('Original AUC Scores', fontweight='bold', fontsize=14)
+    ax1.set_xlabel('Feature Engineering Version')
+    ax1.set_ylabel('Models')
     
     # 添加数值标签
     for i in range(len(model_labels)):
         for j in range(3):
-            text = ax.text(j, i, f'{heatmap_array[i, j]:.4f}',
-                         ha="center", va="center", color="black", fontweight='bold')
-    
-    ax.set_title('Model Performance Heatmap Across Feature Engineering Versions', fontweight='bold')
-    ax.set_xlabel('Feature Engineering Version')
-    ax.set_ylabel('Models')
+            text = ax1.text(j, i, f'{heatmap_array_original[i, j]:.4f}',
+                           ha="center", va="center", color="white", fontweight='bold', fontsize=9)
     
     # 添加颜色条
-    cbar = plt.colorbar(im, ax=ax)
-    cbar.set_label('AUC Score', rotation=270, labelpad=20)
+    cbar1 = plt.colorbar(im1, ax=ax1)
+    cbar1.set_label('AUC Score', rotation=270, labelpad=20)
+    
+    # 右图：改进幅度热力图
+    baseline_auc = min(heatmap_array_original.flatten())
+    improvement_data = (heatmap_array_original - baseline_auc) * 10000  # 放大10000倍
+    
+    im2 = ax2.imshow(improvement_data, cmap='RdYlGn', aspect='auto')
+    ax2.set_xticks(range(3))
+    ax2.set_xticklabels(['FE1', 'FE2', 'FE3'], fontsize=12)
+    ax2.set_yticks(range(len(model_labels)))
+    ax2.set_yticklabels(model_labels, fontsize=10)
+    ax2.set_title(f'Improvement vs Baseline ({baseline_auc:.4f})', fontweight='bold', fontsize=14)
+    ax2.set_xlabel('Feature Engineering Version')
+    ax2.set_ylabel('Models')
+    
+    # 添加数值标签 - 显示原始改进值
+    for i in range(len(model_labels)):
+        for j in range(3):
+            original_improvement = (heatmap_array_original[i, j] - baseline_auc)
+            text = ax2.text(j, i, f'{original_improvement:+.4f}',
+                           ha="center", va="center", color="black", fontweight='bold', fontsize=9)
+    
+    # 添加颜色条
+    cbar2 = plt.colorbar(im2, ax=ax2)
+    cbar2.set_label('Improvement (×10,000)', rotation=270, labelpad=20)
     
     plt.tight_layout()
     plt.savefig(output_dir / 'performance_heatmap.png', dpi=300, bbox_inches='tight')

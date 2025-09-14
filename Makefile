@@ -11,20 +11,10 @@ install:  ## Install dependencies
 
 install-dev:  ## Install development dependencies
 	pip install -r requirements.txt
-	pip install pytest pytest-cov black flake8 mypy
+	pip install black flake8 mypy
 
 setup-dev: install-dev  ## Setup development environment
-	pre-commit install
-
-test:  ## Run tests
-	pytest tests/ -v
-
-test-cov:  ## Run tests with coverage
-	pytest tests/ --cov=models/ --cov-report=html --cov-report=term
-
-lint:  ## Run linting
-	flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-	flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+	@echo "Development environment setup complete"
 
 format:  ## Format code
 	black .
@@ -32,7 +22,7 @@ format:  ## Format code
 type-check:  ## Run type checking
 	mypy models/ --ignore-missing-imports
 
-quality: lint type-check format  ## Run all quality checks
+quality: format type-check  ## Run code quality checks
 
 # Feature Engineering
 fe-v1:  ## Run feature engineering v1

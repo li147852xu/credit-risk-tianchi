@@ -43,7 +43,7 @@ This solution achieved excellent results through:
 - **Reproducible**: All experiments are fully reproducible with fixed random seeds
 - **Scalable**: Support for parallel processing and efficient memory usage
 - **Comprehensive**: Multiple model types and blending strategies
-- **Production Ready**: CI/CD pipeline with automated testing
+- **Production Ready**: Complete project structure with documentation
 
 ### Results
 
@@ -79,25 +79,25 @@ This solution achieved excellent results through:
 
 #### Performance Visualizations
 
-We've created comprehensive visualizations to better understand our model performance:
+We've created comprehensive visualizations with enhanced scaling to highlight the subtle but important AUC differences:
 
 ![Model Comparison](visualizations/charts/model_comparison.png)
-*Model performance comparison across feature engineering versions*
+*Model performance comparison with amplified scale to show AUC improvements vs baseline*
 
 ![Feature Engineering Improvement](visualizations/charts/fe_improvement.png)
-*Feature engineering improvement analysis by model*
+*Feature engineering improvement analysis with enhanced visualization of incremental gains*
 
 ![Performance Heatmap](visualizations/charts/performance_heatmap.png)
-*Performance heatmap showing AUC scores across models and FE versions*
+*Dual heatmap showing both original AUC scores and improvement magnitudes*
 
 ![Best Results](visualizations/charts/best_results.png)
-*Best single model vs best blending performance*
+*Best single model vs best blending performance with relative improvement scaling*
 
 ![Blend Comparison](visualizations/charts/blend_comparison.png)
 *Blending strategy comparison across feature engineering versions*
 
 ![Summary Statistics](visualizations/charts/summary_statistics.png)
-*Performance statistics summary*
+*Performance statistics summary with distribution analysis*
 
 #### Blending Results
 
@@ -315,7 +315,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **可重现**: 所有实验都可通过固定随机种子完全重现
 - **可扩展**: 支持并行处理和高效内存使用
 - **全面性**: 多种模型类型和融合策略
-- **生产就绪**: 带有自动化测试的CI/CD流水线
+- **生产就绪**: 完整的项目结构和文档
 
 ### 结果
 
@@ -351,25 +351,25 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 #### 性能可视化图表
 
-我们创建了全面的可视化图表来更好地理解模型性能：
+我们创建了全面的可视化图表，通过增强的比例尺来突出细微但重要的AUC差异：
 
 ![模型对比](visualizations/charts/model_comparison.png)
-*各特征工程版本下的模型性能对比*
+*模型性能对比，使用放大比例尺显示相对于基准的AUC改进*
 
 ![特征工程改进](visualizations/charts/fe_improvement.png)
-*各模型的特征工程改进分析*
+*特征工程改进分析，增强可视化显示增量收益*
 
 ![性能热力图](visualizations/charts/performance_heatmap.png)
-*模型和特征工程版本的AUC得分热力图*
+*双热力图显示原始AUC得分和改进幅度*
 
 ![最佳结果](visualizations/charts/best_results.png)
-*最佳单模型 vs 最佳融合性能*
+*最佳单模型 vs 最佳融合性能，使用相对改进比例尺*
 
 ![融合策略对比](visualizations/charts/blend_comparison.png)
 *各特征工程版本的融合策略对比*
 
 ![统计摘要](visualizations/charts/summary_statistics.png)
-*性能统计摘要*
+*性能统计摘要，包含分布分析*
 
 #### 模型融合结果
 
