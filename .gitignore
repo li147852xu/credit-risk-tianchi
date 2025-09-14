@@ -137,7 +137,7 @@ data/testB.csv
 # Model outputs
 outputs/
 output-FE*/
-models/
+# models/  # Commented out - we need the models source code
 *.model
 *.pkl
 *.joblib

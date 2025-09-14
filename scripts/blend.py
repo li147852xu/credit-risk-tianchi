@@ -10,8 +10,12 @@ Model Blending Script
 import os
 import json
 import argparse
+import sys
 from pathlib import Path
 from datetime import datetime
+
+# Add parent directory to path
+sys.path.append(str(Path(__file__).parent.parent))
 
 import numpy as np
 import pandas as pd

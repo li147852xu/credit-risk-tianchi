@@ -9,7 +9,12 @@ Unified Model Training Script
 
 import argparse
 import json
+import sys
 from pathlib import Path
+
+# Add parent directory to path to import models
+sys.path.append(str(Path(__file__).parent.parent))
+
 from models import (
     train_lightgbm_model, train_xgboost_model, train_catboost_model, train_linear_model,
     get_lightgbm_configs, get_xgboost_configs, get_catboost_configs, get_linear_configs

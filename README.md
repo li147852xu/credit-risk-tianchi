@@ -47,11 +47,80 @@ This solution achieved excellent results through:
 
 ### Results
 
-| Feature Engineering | Best Single Model | Best Blend | Improvement |
-|-------------------|------------------|------------|-------------|
-| v1 | 0.7387 | 0.7411 | +0.0024 |
-| v2 | 0.7411 | 0.7435 | +0.0024 |
-| v3 | 0.7386 | 0.7418 | +0.0032 |
+#### Single Model Performance by Feature Engineering Version
+
+| Feature Engineering | Model Type | Model Name | AUC | Key Parameters |
+|-------------------|------------|------------|-----|----------------|
+| **FE1** | CatBoost | C0 | 0.7387 | depth=6, lr=0.03, l2=8.0 |
+| | CatBoost | C1 | 0.7386 | depth=7, lr=0.05, l2=3.0 |
+| | LightGBM | L0 | 0.7315 | num_leaves=63, lr=0.10 |
+| | LightGBM | L1 | 0.7332 | num_leaves=255, lr=0.01 |
+| | LightGBM | L2 | 0.7310 | num_leaves=191, lr=0.02 |
+| | XGBoost | X0 | 0.7333 | max_leaves=255, lr=0.02 |
+| | XGBoost | X1 | 0.7349 | max_depth=8, lr=0.06 |
+| | XGBoost | X2 | 0.7355 | max_leaves=127, lr=0.03 |
+| | Linear | LR | 0.7118 | Logistic Regression |
+| | Linear | LS | 0.7120 | Linear SVM |
+| **FE2** | CatBoost | C0 | 0.7411 | depth=6, lr=0.03, l2=8.0 |
+| | CatBoost | C1 | 0.7409 | depth=7, lr=0.05, l2=3.0 |
+| | LightGBM | L0 | 0.7341 | num_leaves=63, lr=0.10 |
+| | LightGBM | L1 | 0.7359 | num_leaves=255, lr=0.01 |
+| | LightGBM | L2 | 0.7341 | num_leaves=191, lr=0.02 |
+| | XGBoost | X0 | 0.7359 | max_leaves=255, lr=0.02 |
+| | XGBoost | X1 | 0.7371 | max_depth=8, lr=0.06 |
+| | XGBoost | X2 | 0.7380 | max_leaves=127, lr=0.03 |
+| | Linear | LR | 0.7258 | Logistic Regression |
+| | Linear | LS | 0.7246 | Linear SVM |
+| **FE3** | CatBoost | C0 | 0.7386 | depth=6, lr=0.03, l2=8.0 |
+| | CatBoost | C1 | 0.7384 | depth=7, lr=0.05, l2=3.0 |
+| | LightGBM | L0 | 0.7342 | num_leaves=63, lr=0.10 |
+| | LightGBM | L1 | 0.7362 | num_leaves=255, lr=0.01 |
+| | LightGBM | L2 | 0.7337 | num_leaves=191, lr=0.02 |
+| | XGBoost | X0 | 0.7361 | max_leaves=255, lr=0.02 |
+| | XGBoost | X1 | 0.7376 | max_depth=8, lr=0.06 |
+| | XGBoost | X2 | 0.7373 | max_leaves=127, lr=0.03 |
+| | Linear | LG | 0.7197 | Logistic Regression |
+| | Linear | LS | 0.7195 | Linear SVM |
+
+#### Blending Results
+
+| Blend Version | Strategy | AUC | Improvement |
+|---------------|----------|-----|-------------|
+| **FE1 Blend** | Weight Optimization | 0.7418 | +0.0031 |
+| | Greedy Selection | 0.7418 | +0.0031 |
+| | Stacking LR | 0.7417 | +0.0030 |
+| | Stacking Ridge | 0.7415 | +0.0028 |
+| | Simple Mean | 0.7392 | +0.0005 |
+| **FE2 Blend** | Weight Optimization | 0.7418 | +0.0007 |
+| | Greedy Selection | 0.7418 | +0.0007 |
+| | Stacking LR | 0.7417 | +0.0006 |
+| | Stacking Ridge | 0.7414 | +0.0003 |
+| | Simple Mean | 0.7401 | -0.0010 |
+| **FE3 Blend** | Weight Optimization | 0.7414 | +0.0037 |
+| | Stacking LR | 0.7414 | +0.0037 |
+| | Greedy Selection | 0.7414 | +0.0037 |
+| | Stacking Ridge | 0.7407 | +0.0030 |
+| | Simple Mean | 0.7392 | +0.0015 |
+| **FE1+2+3 Blend** | Weight Optimization | 0.7418 | +0.0031 |
+| | Greedy Selection | 0.7418 | +0.0031 |
+| | Stacking LR | 0.7417 | +0.0030 |
+| | Stacking Ridge | 0.7415 | +0.0028 |
+| | Simple Mean | 0.7392 | +0.0005 |
+| **FE2+3 Blend** | Weight Optimization | 0.7414 | +0.0037 |
+| | Stacking LR | 0.7414 | +0.0037 |
+| | Greedy Selection | 0.7414 | +0.0037 |
+| | Stacking Ridge | 0.7407 | +0.0030 |
+| | Simple Mean | 0.7392 | +0.0015 |
+
+#### Best Results Summary
+
+| Metric | Value |
+|--------|-------|
+| **Best Single Model** | 0.7411 (CatBoost C0 on FE2) |
+| **Best Blend Strategy** | Weight Optimization |
+| **Best Overall Result** | 0.7418 (FE1+2+3 Blend) |
+| **Best Feature Engineering** | FE2 (most consistent improvements) |
+| **Best Model Family** | CatBoost (highest individual scores) |
 
 ### Installation
 
@@ -233,11 +302,80 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### 结果
 
-| 特征工程版本 | 最佳单模型 | 最佳融合 | 提升 |
-|------------|-----------|---------|------|
-| v1 | 0.7387 | 0.7411 | +0.0024 |
-| v2 | 0.7411 | 0.7435 | +0.0024 |
-| v3 | 0.7386 | 0.7418 | +0.0032 |
+#### 各特征工程版本的单模型性能
+
+| 特征工程版本 | 模型类型 | 模型名称 | AUC | 关键参数 |
+|------------|---------|---------|-----|---------|
+| **FE1** | CatBoost | C0 | 0.7387 | depth=6, lr=0.03, l2=8.0 |
+| | CatBoost | C1 | 0.7386 | depth=7, lr=0.05, l2=3.0 |
+| | LightGBM | L0 | 0.7315 | num_leaves=63, lr=0.10 |
+| | LightGBM | L1 | 0.7332 | num_leaves=255, lr=0.01 |
+| | LightGBM | L2 | 0.7310 | num_leaves=191, lr=0.02 |
+| | XGBoost | X0 | 0.7333 | max_leaves=255, lr=0.02 |
+| | XGBoost | X1 | 0.7349 | max_depth=8, lr=0.06 |
+| | XGBoost | X2 | 0.7355 | max_leaves=127, lr=0.03 |
+| | Linear | LR | 0.7118 | 逻辑回归 |
+| | Linear | LS | 0.7120 | 线性SVM |
+| **FE2** | CatBoost | C0 | 0.7411 | depth=6, lr=0.03, l2=8.0 |
+| | CatBoost | C1 | 0.7409 | depth=7, lr=0.05, l2=3.0 |
+| | LightGBM | L0 | 0.7341 | num_leaves=63, lr=0.10 |
+| | LightGBM | L1 | 0.7359 | num_leaves=255, lr=0.01 |
+| | LightGBM | L2 | 0.7341 | num_leaves=191, lr=0.02 |
+| | XGBoost | X0 | 0.7359 | max_leaves=255, lr=0.02 |
+| | XGBoost | X1 | 0.7371 | max_depth=8, lr=0.06 |
+| | XGBoost | X2 | 0.7380 | max_leaves=127, lr=0.03 |
+| | Linear | LR | 0.7258 | 逻辑回归 |
+| | Linear | LS | 0.7246 | 线性SVM |
+| **FE3** | CatBoost | C0 | 0.7386 | depth=6, lr=0.03, l2=8.0 |
+| | CatBoost | C1 | 0.7384 | depth=7, lr=0.05, l2=3.0 |
+| | LightGBM | L0 | 0.7342 | num_leaves=63, lr=0.10 |
+| | LightGBM | L1 | 0.7362 | num_leaves=255, lr=0.01 |
+| | LightGBM | L2 | 0.7337 | num_leaves=191, lr=0.02 |
+| | XGBoost | X0 | 0.7361 | max_leaves=255, lr=0.02 |
+| | XGBoost | X1 | 0.7376 | max_depth=8, lr=0.06 |
+| | XGBoost | X2 | 0.7373 | max_leaves=127, lr=0.03 |
+| | Linear | LG | 0.7197 | 逻辑回归 |
+| | Linear | LS | 0.7195 | 线性SVM |
+
+#### 模型融合结果
+
+| 融合版本 | 策略 | AUC | 提升 |
+|---------|------|-----|------|
+| **FE1融合** | 权重优化 | 0.7418 | +0.0031 |
+| | 贪心选择 | 0.7418 | +0.0031 |
+| | 逻辑回归堆叠 | 0.7417 | +0.0030 |
+| | 岭回归堆叠 | 0.7415 | +0.0028 |
+| | 简单平均 | 0.7392 | +0.0005 |
+| **FE2融合** | 权重优化 | 0.7418 | +0.0007 |
+| | 贪心选择 | 0.7418 | +0.0007 |
+| | 逻辑回归堆叠 | 0.7417 | +0.0006 |
+| | 岭回归堆叠 | 0.7414 | +0.0003 |
+| | 简单平均 | 0.7401 | -0.0010 |
+| **FE3融合** | 权重优化 | 0.7414 | +0.0037 |
+| | 逻辑回归堆叠 | 0.7414 | +0.0037 |
+| | 贪心选择 | 0.7414 | +0.0037 |
+| | 岭回归堆叠 | 0.7407 | +0.0030 |
+| | 简单平均 | 0.7392 | +0.0015 |
+| **FE1+2+3融合** | 权重优化 | 0.7418 | +0.0031 |
+| | 贪心选择 | 0.7418 | +0.0031 |
+| | 逻辑回归堆叠 | 0.7417 | +0.0030 |
+| | 岭回归堆叠 | 0.7415 | +0.0028 |
+| | 简单平均 | 0.7392 | +0.0005 |
+| **FE2+3融合** | 权重优化 | 0.7414 | +0.0037 |
+| | 逻辑回归堆叠 | 0.7414 | +0.0037 |
+| | 贪心选择 | 0.7414 | +0.0037 |
+| | 岭回归堆叠 | 0.7407 | +0.0030 |
+| | 简单平均 | 0.7392 | +0.0015 |
+
+#### 最佳结果汇总
+
+| 指标 | 数值 |
+|------|------|
+| **最佳单模型** | 0.7411 (CatBoost C0 on FE2) |
+| **最佳融合策略** | 权重优化 |
+| **最佳整体结果** | 0.7418 (FE1+2+3融合) |
+| **最佳特征工程** | FE2 (最一致的改进) |
+| **最佳模型族** | CatBoost (最高的单模型得分) |
 
 ### 安装
 
