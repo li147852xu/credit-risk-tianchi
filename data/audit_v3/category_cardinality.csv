@@ -1,0 +1,13 @@
+cat_col,nunique
+regionCode,51
+subGrade,35
+fico_bin,16
+purpose,14
+employmentLength_cat,12
+grade,7
+homeOwnership,6
+verificationStatus,3
+applicationType,2
+initialListStatus,2
+term_bin,2
+policyCode,1

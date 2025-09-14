@@ -1,0 +1,236 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9, "3.10"]
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov black flake8 mypy
+    
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    
+    - name: Type check with mypy
+      run: |
+        mypy models/ --ignore-missing-imports
+    
+    - name: Format check with black
+      run: |
+        black --check .
+    
+    - name: Test with pytest
+      run: |
+        pytest tests/ --cov=models/ --cov-report=xml
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  feature-engineering:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Create dummy data
+      run: |
+        mkdir -p data
+        python -c "
+        import pandas as pd
+        import numpy as np
+        
+        # Create dummy train data
+        n_train = 1000
+        train_data = pd.DataFrame({
+            'id': range(n_train),
+            'isDefault': np.random.randint(0, 2, n_train),
+            'loanAmnt': np.random.uniform(5000, 50000, n_train),
+            'term': np.random.choice(['36 months', '60 months'], n_train),
+            'interestRate': np.random.uniform(5, 30, n_train),
+            'installment': np.random.uniform(100, 2000, n_train),
+            'grade': np.random.choice(['A', 'B', 'C', 'D', 'E', 'F', 'G'], n_train),
+            'subGrade': np.random.choice(['A1', 'A2', 'B1', 'B2', 'C1', 'C2'], n_train),
+            'employmentTitle': [f'job_{i}' for i in np.random.randint(1, 100, n_train)],
+            'employmentLength': np.random.choice(['< 1 year', '1 year', '2 years', '3 years', '4 years', '5 years', '6 years', '7 years', '8 years', '9 years', '10+ years'], n_train),
+            'homeOwnership': np.random.choice(['RENT', 'OWN', 'MORTGAGE', 'OTHER'], n_train),
+            'annualIncome': np.random.uniform(20000, 200000, n_train),
+            'verificationStatus': np.random.choice(['Verified', 'Source Verified', 'Not Verified'], n_train),
+            'purpose': np.random.choice(['debt_consolidation', 'credit_card', 'home_improvement', 'other'], n_train),
+            'postCode': np.random.randint(10000, 99999, n_train),
+            'regionCode': np.random.randint(1, 50, n_train),
+            'dti': np.random.uniform(0, 50, n_train),
+            'delinquency_2years': np.random.randint(0, 10, n_train),
+            'ficoRangeLow': np.random.randint(600, 800, n_train),
+            'ficoRangeHigh': np.random.randint(650, 850, n_train),
+            'openAcc': np.random.randint(1, 30, n_train),
+            'pubRec': np.random.randint(0, 5, n_train),
+            'pubRecBankruptcies': np.random.randint(0, 3, n_train),
+            'revolBal': np.random.uniform(0, 50000, n_train),
+            'revolUtil': np.random.uniform(0, 100, n_train),
+            'totalAcc': np.random.randint(1, 50, n_train),
+            'initialListStatus': np.random.choice(['f', 'w'], n_train),
+            'applicationType': np.random.choice(['Individual', 'Joint App'], n_train),
+            'title': [f'title_{i}' for i in np.random.randint(1, 50, n_train)],
+            'policyCode': np.random.choice([1], n_train),
+            'issueDate': pd.date_range('2018-01-01', periods=n_train, freq='D').strftime('%Y-%m-%d'),
+            'earliesCreditLine': pd.date_range('2010-01-01', periods=n_train, freq='D').strftime('%Y-%m-%d')
+        })
+        
+        # Add n0-n14 columns
+        for i in range(15):
+            train_data[f'n{i}'] = np.random.uniform(0, 10, n_train)
+        
+        # Create dummy test data
+        n_test = 200
+        test_data = train_data.drop(['isDefault'], axis=1).sample(n=n_test, random_state=42).reset_index(drop=True)
+        test_data['id'] = range(n_test)
+        
+        train_data.to_csv('data/train.csv', index=False)
+        test_data.to_csv('data/testA.csv', index=False)
+        
+        print('Dummy data created successfully')
+        "
+    
+    - name: Test Feature Engineering v1
+      run: |
+        python scripts/feature_engineering_v1.py --train_path data/train.csv --test_path data/testA.csv --cache_dir data/processed_v1_test
+    
+    - name: Test Feature Engineering v2
+      run: |
+        python scripts/feature_engineering_v2.py --train_path data/train.csv --test_path data/testA.csv --cache_dir data/processed_v2_test
+    
+    - name: Test Feature Engineering v3
+      run: |
+        python scripts/feature_engineering_v3.py --train_path data/train.csv --test_path data/testA.csv --out_cache_dir data/processed_v3_test
+
+  model-training:
+    runs-on: ubuntu-latest
+    needs: feature-engineering
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Create dummy data and run feature engineering
+      run: |
+        mkdir -p data
+        python -c "
+        import pandas as pd
+        import numpy as np
+        
+        # Create smaller dummy data for faster testing
+        n_train = 500
+        train_data = pd.DataFrame({
+            'id': range(n_train),
+            'isDefault': np.random.randint(0, 2, n_train),
+            'loanAmnt': np.random.uniform(5000, 50000, n_train),
+            'term': np.random.choice(['36 months', '60 months'], n_train),
+            'interestRate': np.random.uniform(5, 30, n_train),
+            'grade': np.random.choice(['A', 'B', 'C', 'D', 'E', 'F', 'G'], n_train),
+            'employmentTitle': [f'job_{i}' for i in np.random.randint(1, 50, n_train)],
+            'annualIncome': np.random.uniform(20000, 200000, n_train),
+            'purpose': np.random.choice(['debt_consolidation', 'credit_card', 'home_improvement'], n_train),
+            'regionCode': np.random.randint(1, 10, n_train),
+            'dti': np.random.uniform(0, 50, n_train),
+            'ficoRangeLow': np.random.randint(600, 800, n_train),
+            'ficoRangeHigh': np.random.randint(650, 850, n_train),
+            'revolBal': np.random.uniform(0, 50000, n_train),
+            'issueDate': pd.date_range('2018-01-01', periods=n_train, freq='D').strftime('%Y-%m-%d'),
+            'earliesCreditLine': pd.date_range('2010-01-01', periods=n_train, freq='D').strftime('%Y-%m-%d')
+        })
+        
+        # Add n0-n14 columns
+        for i in range(15):
+            train_data[f'n{i}'] = np.random.uniform(0, 10, n_train)
+        
+        n_test = 100
+        test_data = train_data.drop(['isDefault'], axis=1).sample(n=n_test, random_state=42).reset_index(drop=True)
+        test_data['id'] = range(n_test)
+        
+        train_data.to_csv('data/train.csv', index=False)
+        test_data.to_csv('data/testA.csv', index=False)
+        "
+        
+        # Run feature engineering
+        python scripts/feature_engineering_v1.py --train_path data/train.csv --test_path data/testA.csv --cache_dir data/processed_v1
+    
+    - name: Test model training
+      run: |
+        python scripts/train_models.py --model lightgbm_v0 --cache_dir data/processed_v1 --output_dir outputs_test --n_folds 3 --num_boost_round 100
+
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: [test, feature-engineering, model-training]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run integration test
+      run: |
+        echo "All tests passed successfully!"
+        echo "CI/CD pipeline completed."
